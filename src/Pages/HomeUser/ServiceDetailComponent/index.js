@@ -1,14 +1,12 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
-import { selectCarId } from '../../../Redux/slice/carsSlice'
 import iconOne from '../../../Assets/img/fi_users.png'
 import iconTwo from '../../../Assets/img/fi_settings.png'
 import iconThree from '../../../Assets/img/fi_settings.png'
 import Accordion from './Accordion';
 import ModalImage from "react-modal-image";
 
-const ServiceDetailItems = ({handlePayment}) => {
-  const car = useSelector(selectCarId);
+const ServiceDetailItems = (props) => {
+  const {car, handlePayment} = props;
   const priceRP = new Intl.NumberFormat('id-ID', 
     { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 })
     .format(car.price);

@@ -1,14 +1,15 @@
 /* eslint-disable no-unused-vars */
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import { Navigate, Route, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import useAuth from '../Hooks/useAuth';
 
 const RequireAuth = ({ children }) => {
-const auth = useSelector((state) => state.auth)
+// const auth = useSelector((state) => state.auth)
+const authCtx = useAuth();
 const location = useLocation();
 
   return (
-    auth?.isLoggedIn
+    authCtx.isLoggedIn
       ? children
       : <Navigate to="/register" state={{ from:location}} replace />
   );

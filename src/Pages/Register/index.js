@@ -2,62 +2,70 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { useSelector, useDispatch } from 'react-redux';
 import { signInWithPopup ,GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '../../Auth/firebase';
-import { registerAdmin, registerUser } from '../../Redux/action/authAction';
-import { authActions, selectMessage, selectStatus, selectShowMessage } from '../../Redux/slice/authSlice';
 import GoogleButton from 'react-google-button';
 import { Loading } from '../../Components';
 import Modal from '../../Components/Modal';
 import imgCar from '../../Assets/img/image 2.png';
 import imgLogo from '../../Assets/img/Rectangle 62.png';
+import userService from '../../Services/userService';
 import '../../App.css'
 
 const Register = () => {
 const { register, handleSubmit } = useForm();
-const [showModal, setShowModal] = useState(false);
-const showMessage = useSelector(selectShowMessage);
-const message = useSelector(selectMessage);
-const status = useSelector(selectStatus); 
-const dispatch = useDispatch();
 const authHandle = auth;
 const provider = new GoogleAuthProvider();
+const [showModal, setShowModal] = useState(false);
+const [isLoading, setIsLoading] = useState(false);
+const [isMessage, setIsMessage] = useState('');
 
 const onSubmit = (value) =>{
-    // if (value?.role === 'admin') {
-        const dataSend = {
-            email: value?.email,
-            password: value?.password,
-            role: 'admin'
-        }
-        dispatch(registerAdmin(dataSend)).unwrap()
-    // }else{
-    //     const dataSend = {
-    //         email: value?.email,
-    //         password: value?.password,
-    //     }
-    //     dispatch(registerUser(dataSend)).unwrap()
-    // }
-}
-
-if(showMessage){
-    setShowModal(true)
-    setTimeout(() => {
-        setShowModal(false)
-        dispatch(authActions.resetMessage())
-    }, 1500);
-    dispatch(authActions.setOffShowMessage())
+    setIsLoading(true)
+        userService.registerAdmin(value).then((res) => {
+            if (res.status === 201 ) {
+                setIsLoading(false);
+                setIsMessage('Register Success')
+                setShowModal(true)
+                setTimeout(() => {
+                    setShowModal(false)
+                    setIsMessage('') 
+                }, 1500);
+            } else {
+                setIsLoading(false);
+                setIsMessage(res?.data.message)
+                setShowModal(true)
+                setTimeout(() => {
+                    setShowModal(false)
+                    setIsMessage('') 
+                }, 1500);
+            } 
+        })
 }
 
 const handleGoggle = ()=>{
     signInWithPopup(authHandle ,provider).then((data)=>{
         if (data) {
-            const dataSend ={
-                email: data?.user?.email,
-                password:data?.user?.uid,
-            }
-            dispatch(registerUser(dataSend)).unwrap()
+            setIsLoading(true)
+            userService.registerAdmin(data).then((res) => {
+                if (res.status === 201 ) {
+                    setIsLoading(false);
+                    setIsMessage('Register Success')
+                    setShowModal(true)
+                    setTimeout(() => {
+                        setShowModal(false)
+                        setIsMessage('') 
+                    }, 1500);
+                } else {
+                    setIsLoading(false);
+                    setIsMessage('Register Failed')
+                    setShowModal(true)
+                    setTimeout(() => {
+                        setShowModal(false)
+                        setIsMessage('') 
+                    }, 1500);
+                } 
+            })
         }
     }).catch((err)=>{
         console.log(err)
@@ -66,8 +74,8 @@ const handleGoggle = ()=>{
 
   return (
     <>
-        {status === 'pending' && <Loading />}
-        {(showModal) && <Modal message={message} />}
+        {isLoading && <Loading />}
+        {showModal && <Modal message={isMessage} />}
         <div className='grid grid-cols-2 full-body'>
             <div className='container'>
                 <img className='w-full h-full' src={imgCar} alt='' />
@@ -105,17 +113,6 @@ const handleGoggle = ()=>{
                                     required
                                     {...register("password")}
                                 />
-                                 {/* <label className="block text-grey-darker text-md mb-2" htmlFor="password">
-                                    Role
-                                </label>
-                                <select 
-                                    {...register("role")} 
-                                    className='shadow border border-red rounded w-full py-1 px-2 mb-3'
-                                    required
-                                >
-                                    <option value="user">User</option>
-                                    <option value="admin">Admin</option>
-                                </select> */}
                             </div>
                             <div className="flex items-center justify-between">
                                 <button 

@@ -1,21 +1,17 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { AddNewCar } from '../../Redux/action/carsAction';
-import { selectRes, selectStatus } from '../../Redux/slice/carsSlice';
 import Loading from '../../Components/Loading';
+import carsService from '../../Services/carsService';
 
 const CarsFormAdd = () => {
-const dispatch = useDispatch();
 const navigate =  useNavigate();
-const res = useSelector(selectRes);
-const stat = useSelector(selectStatus);
 const [fileImage, setFileImage] = useState(null); 
 const [image, setImage] = useState(null);
 const [name, setName] = useState('');
 const [price, setPrice] = useState('');
 const [capacity, setCapacity] = useState();
 const [status, setStatus] = useState('');
+const [isLoading, setIsLoading] = useState(false);
 
 const onChangeImage = e => {
     setFileImage(e.target.files[0])
@@ -42,6 +38,7 @@ const handleInputChange = (evt) =>{
 
 const handleSubmit = (value) =>{
     value.preventDefault();
+    setIsLoading(true);
     const data = {
         name: name,
         category: capacity,
@@ -49,19 +46,24 @@ const handleSubmit = (value) =>{
         status: status,
         image: fileImage
     }
-    // console.log(data);
-    dispatch(AddNewCar(data));
-    // return navigate('/admin/cars?crt=true')
-}
-// console.log('res', temp)
-// console.log('stat', stat)
-if(stat === 'success' && res === 201){
-    return navigate('/admin/cars?crt=true')
+    // dispatch(AddNewCar(data));
+    carsService.AddNewCar(data).then((res) => {
+        if (res.status === 201) {
+            setIsLoading(false)
+            setTimeout(() => {
+                return navigate('/admin/cars?crt=true')
+            }, 1000);
+        } else {
+            setIsLoading(false);
+            alert('Failed New data')
+        }
+    })
 }
 
+console.log(isLoading)
   return (
       <>
-      {stat === 'pending' && <Loading />}
+      {isLoading && <Loading />}
         <div className='full-body-height flex flex-col'>
             <div className='text-sm py-3 px-5'>
             <span className='font-bold'>Car > </span>
@@ -87,7 +89,7 @@ if(stat === 'success' && res === 201){
                             placeholder='Name'
                             value={name}
                             onChange={(e) => handleInputChange(e)}
-                            // required
+                            required
                         />
                     </div>
                     <div className='flex flex-row gap-2 w-full'>
@@ -101,7 +103,7 @@ if(stat === 'success' && res === 201){
                             placeholder='Price'
                             value={price}
                             onChange={(e) => handleInputChange(e)}
-                            // required
+                            required
                         />
                     </div>
                     <div className='flex flex-row gap-2 w-full'>
@@ -115,7 +117,7 @@ if(stat === 'success' && res === 201){
                             name='category' 
                             value={capacity||'default'} 
                             onChange={(e)=>handleInputChange(e)}
-                            // required
+                            required
                         > 
                             <option value='default' disabled>
                                 Select Capacity
@@ -136,7 +138,7 @@ if(stat === 'success' && res === 201){
                             ${capacity ? 'text-black' : 'text-gray-400'}`}
                             value={status||'default'} 
                             onChange={(e)=>handleInputChange(e)}
-                            // required
+                            required
                         >
                             <option value='default' disabled>Select Status</option>
                             <option value='true'>true</option>
@@ -156,13 +158,12 @@ if(stat === 'success' && res === 201){
                                     type='file'
                                     placeholder='Price'
                                     onChange={(e)=> onChangeImage(e)}
-                                    // required
+                                    required
                                 /> 
                                 <img 
                                     className=''
                                     width={100} 
                                     height={100} 
-                                    // src={image} 
                                     src={image} 
                                     alt=''     
                                 />
@@ -174,7 +175,7 @@ if(stat === 'success' && res === 201){
                                     outline py-2 px-4 bg-blue-800 text-white
                                     rounded-lg hover:bg-cyan-500 hover:text-black"
                             >
-                                save
+                               Save 
                             </button>
                         </div>
                     

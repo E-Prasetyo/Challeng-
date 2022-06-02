@@ -1,64 +1,82 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React,{useEffect} from 'react';
+import React,{useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { signInWithPopup ,GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '../../Auth/firebase';
-import { 
-    authActions, selectAuth, selectMessage, selectStatus, selectShowMessage, 
-    // selectTest
-} from '../../Redux/slice/authSlice'
-import { loginAdmin, loginUser } from '../../Redux/action/authAction';
 import GoogleButton from 'react-google-button';
 import { Modal, Loading } from '../../Components';
 import imgCar from '../../Assets/img/image 2.png';
 import imgLogo from '../../Assets/img/Rectangle 62.png';
 import '../../App.css';
+import userService from '../../Services/userService';
+import useAuth from '../../Hooks/useAuth';
 
 const Login = () => {
+const authCtx = useAuth();
 const { register, handleSubmit } = useForm();
-const [showModal, setShowModal] = React.useState(false);
+const [showModal, setShowModal] = useState(false);
+const [isLoading, setIsLoading] = useState(false);
+const [isMessage, setIsMessage] = useState('');
 const navigate = useNavigate()
-const authenticator = useSelector(selectAuth);
-const showMessage = useSelector(selectShowMessage);
-const status = useSelector(selectStatus);
-const message = useSelector(selectMessage);
-const dispatch = useDispatch();
 const authHandle = auth;
 const provider = new GoogleAuthProvider();
 
 const onSubmit = (value) =>{
-    const dataSend = {
-        email: value?.email,
-        password: value?.password,
-    }
-    dispatch(loginAdmin(dataSend)).unwrap()
+    setIsLoading(true)
+    userService.loginAdmin(value)
+        .then((res) => {
+            if(res?.access_token){
+                authCtx.setAuth(res);
+                setIsLoading(false);
+                setIsMessage('Login Success')
+                setShowModal(true)
+                setTimeout(() => {
+                    setShowModal(false)
+                    setIsMessage('')
+                    return navigate('/') 
+                }, 1500);
+            }else{
+                setIsLoading(false);
+                setIsMessage(res.message)
+                console.log(res.message)
+                setShowModal(true)
+                setTimeout(() => {
+                    setShowModal(false)
+                    setIsMessage('')
+                }, 1500);
+            }
+        })
 }  
-
-if(showMessage){
-    setShowModal(true)
-    setTimeout(() => {
-        setShowModal(false)
-        dispatch(authActions.resetMessage())
-        if(authenticator) {
-            return navigate('/') 
-        }
-    }, 1500);
-    dispatch(authActions.setOffShowMessage())
- 
-}
 
 const handleGoggle = ()=>{
     signInWithPopup(authHandle ,provider).then((data)=>{
         if (data) {
-            const dataSend ={
-                email: data?.user?.email,
-                password: process.env.REACT_APP_LOGIN_PASS,
-            }
-            dispatch(loginUser(dataSend)).unwrap()
+            setIsLoading(true)
+            userService.loginUser(data)
+                .then((res) => {
+                    if(res?.access_token){
+                        authCtx.setAuth(res);
+                        setIsLoading(false);
+                        setIsMessage('Login Success')
+                        setShowModal(true)
+                        setTimeout(() => {
+                            setShowModal(false)
+                            setIsMessage('')
+                            return navigate('/') 
+                        }, 1500);
+                    }else{
+                        setIsLoading(false);
+                        setIsMessage(res.message)
+                        console.log(res.message)
+                        setShowModal(true)
+                        setTimeout(() => {
+                            setShowModal(false)
+                            setIsMessage('')
+                        }, 1500);
+                    }
+                })
         }
     }).catch((err)=>{
         console.log(err , "ini adalah err")
@@ -67,15 +85,15 @@ const handleGoggle = ()=>{
 
 
 useEffect(() => {
-    if (authenticator){
+    if (authCtx.isLoggedIn){
         return navigate('/')
     }
 }, [])
 
 return (
     <>
-        {status === 'pending' && <Loading />}
-        {(showModal) && <Modal message={message} />}
+        {isLoading && <Loading />}
+        {showModal && <Modal message={isMessage} />}
         <div className='grid grid-cols-2 full-body'>
             <div className='container'>
                 <img className='w-full h-full' src={imgCar} alt='' />

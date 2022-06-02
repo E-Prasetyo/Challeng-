@@ -1,29 +1,27 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import { 
   HomeUser, Login, Register, HomeAdmin, NotFound, CarsAdmin, CarsAdminService, CarsAdminServiceDetail, CarsAdminServicePayment
 } from './Pages'
 import AuthRoute from './Auth/AuthRoute';
 import { SidebarAdmin } from './Components';
 import './App.css';
-import { 
-  authActions, selectRole, selectToken 
-} from './Redux/slice/authSlice';
 import CarsFormAdd from './Pages/HomeAdmin/CarsFormAdd';
+import useAuth from './Hooks/useAuth';
 
 function App() {
-  const dispatch = useDispatch();
-  const role = useSelector(selectRole)
-  const token = useSelector(selectToken)
+  const authCtx = useAuth();
+  const role = authCtx.role
 
   useEffect(() => {
     const sessionToken = sessionStorage.getItem('user')
     if(sessionToken){
-      dispatch(authActions.setToken(sessionToken))
+      const data = JSON.parse(sessionToken)
+      authCtx.setAuth(data)
+
     }
-  }, [token])
+  }, [authCtx.token])
 
   return (
     <Routes>

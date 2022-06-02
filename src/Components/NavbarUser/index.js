@@ -1,15 +1,11 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {Fragment} from 'react'
-import { useDispatch } from 'react-redux';
-import { authActions } from '../../Redux/slice/authSlice';
-import { 
-    Disclosure, 
-    // Menu, Transition 
-} from '@headlessui/react'
+import { Disclosure } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
 import { Link, useNavigate } from 'react-router-dom'
 import imgLogo from '../../Assets/img/logo.png'
+import useAuth from '../../Hooks/useAuth';
 
 const navigation = [
   { name: 'Our Service', href: '/service', current: false, type: 'text' },
@@ -20,12 +16,12 @@ const navigation = [
   { name: 'Logout', href: '#', current: false, type: 'button' },
 ]
 
-function classNameCostum(...classes) {
+function classNameCostume(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
 const NavbarUser = ({tag}) => {
-    const dispatch = useDispatch();
+    const authCtx = useAuth();
     const navigate = useNavigate();
     const handleHome =()=>{
         return navigate('/')
@@ -66,7 +62,7 @@ const NavbarUser = ({tag}) => {
                         { item.type === 'text' && 
                             <Link
                                 to={item.href}
-                                className={classNameCostum(
+                                className={classNameCostume(
                                 item.name === tag ? 'bg-cyan-500' : 'text-black font-bold hover:bg-gray-700 hover:text-white',
                                 'px-3 py-2 rounded-md text-sm font-medium'
                                 )}
@@ -85,7 +81,7 @@ const NavbarUser = ({tag}) => {
                         }
                         { item.type === 'button' && 
                             <button
-                                onClick={() => dispatch(authActions.logout())}
+                                onClick={() => authCtx.setLogOut()}
                                 className='group bg-blue-500 rounded-md p-1 text-white hover:bg-emerald-800'
                             >
                                 <span className='group-hover:text-gray-300 p-y5'>{item.name}</span>
@@ -106,7 +102,7 @@ const NavbarUser = ({tag}) => {
                     key={item.name}
                     as="a"
                     href={item.href}
-                    className={classNameCostum(
+                    className={classNameCostume(
                         item.current ? 'bg-gray-900 text-black' : 'text-black-300 hover:bg-cyan-300 hover:text-white',
                         'block px-8 py-2 rounded-md text-base font-medium'
                     )}

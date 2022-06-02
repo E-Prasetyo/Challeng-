@@ -2,13 +2,12 @@
 /* This Dropdwon requires Tailwind CSS v2.0+ */
 import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
-import { ChevronDownIcon } from '@heroicons/react/solid'
-import { useDispatch } from 'react-redux'
-import { authActions } from '../../Redux/slice/authSlice';
+import { ChevronDownIcon } from '@heroicons/react/solid';
+import useAuth from '../../Hooks/useAuth';
 
 
 export default function DropDown() {
-  const dispatch = useDispatch();
+  const authCtx = useAuth();
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
@@ -32,7 +31,7 @@ export default function DropDown() {
                   <button
                     type="submit"
                     className='bg-white text-gray-900 p-3'
-                    onClick={() => dispatch(authActions.logout())}
+                    onClick={() => authCtx.setLogOut()}
                   >
                     Sign out
                   </button>

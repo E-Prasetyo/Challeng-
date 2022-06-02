@@ -6,14 +6,15 @@ import imgCar from '../../Assets/img/fi_truck.png'
 import { 
   MenuIcon, SearchIcon,
 } from '@heroicons/react/outline'; 
-import { useSelector } from 'react-redux';
 import {DropDown} from '../../Components'
 import { Link } from 'react-router-dom';
+import useAuth from '../../Hooks/useAuth';
 
 const SidebarAdmin = ({children, active}) => {
   // const [active, setActive] = useState('1');
   const [activeSub, setActiveSub] = useState('1a');
-  const user = useSelector((state) => state.auth?.user)
+  const authCtx = useAuth();
+  const user = authCtx.user
 
   return (
     <div className='flex flex-row'>

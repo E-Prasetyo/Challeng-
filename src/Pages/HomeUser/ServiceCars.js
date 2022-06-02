@@ -1,52 +1,48 @@
-import React, { useEffect } from 'react'
-import { NavbarUser } from '../../Components'
+import React, { useEffect, useState } from 'react'
+import { Loading, NavbarUser } from '../../Components'
 import { useForm, Controller } from 'react-hook-form'
 import Header from './LandingPage/Header'
-import { useDispatch, useSelector } from 'react-redux'
-import { 
-    carsActions, selectSearch, selectShowSearch 
-} from '../../Redux/slice/carsSlice'
-import {
-    getAllCars
-} from '../../Redux/action/carsAction'
 import iconUser from '../../Assets/img/fi_users.png'
 import CardList from './ServiceCarComponent'
+import carsService from '../../Services/carsService'
+import useAuth from '../../Hooks/useAuth'
 
 const ServiceCars = () => {
+    const authCxt = useAuth();
     const { register, control, handleSubmit } = useForm();
-    const search = useSelector(selectSearch);
-    const show = useSelector(selectShowSearch);
-    const dispatch = useDispatch();
+    const search = authCxt.search;
+    const [isLoading, setIsLoading] = useState(false)
+    const [dataCars, setDataCars] = useState()
+    const [failedLoad, setFailedLoad] = useState('')
 
     const onSubmit = (value) =>{
-
-        try {
-             dispatch(carsActions.setSearch(value.type_driver));
-             dispatch(carsActions.setShowSearch());
-        } catch (error) {
-            console.log(error.message)
-        }
-       
+        authCxt.setShowCars(value.type_driver)       
     }
 
     useEffect(() => {
-        dispatch(getAllCars());
-    
-    //   return () => {
-    //     second
-    //   }
+        setIsLoading(true)
+        carsService.getAllCars().then((res) => {
+          if (res.status === 200) {
+            setDataCars(res.data)
+            setIsLoading(false)
+          }else {
+            setFailedLoad(res.statusText)
+            setIsLoading(false)
+          }
+        })
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     
     let content;
-    if(show){
-        content = <CardList />
+    if(authCxt.showCars){
+        content = <CardList cars={dataCars} />
     }else{
-        content = ''
+        content = <div className='text-center w-full'>{failedLoad}</div>
     }
     
   return (
     <>
+        {isLoading && <Loading />}
         <NavbarUser tag="Our Service" />
         <Header/>
         <div className='-translate-y-5 flex flex-col justify-center items-center'>

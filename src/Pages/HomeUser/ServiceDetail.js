@@ -1,33 +1,46 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Loading, NavbarUser } from '../../Components';
 import Header from './LandingPage/Header';
 import iconUser from '../../Assets/img/fi_users.png'
 import ServiceDetailItem from './ServiceDetailComponent';
-import { useDispatch, useSelector } from 'react-redux';
-import { selectStatus } from '../../Redux/slice/carsSlice';
-import { getCarById } from '../../Redux/action/carsAction';
+import carsService from '../../Services/carsService';
 
 const ServiceDetail = () => {
     const { id } = useParams();
-    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const status = useSelector(selectStatus)
+    const [isLoading, setIsLoading] = useState(false)
+    const [dataCar, setDataCar] = useState(false)
+    const [failedLoad, setFailedLoad] = useState(false)
     
     useEffect(() => {
-      dispatch(getCarById(id));
-    //   return () => {
-    //     second
-    //   }
+      setIsLoading(true)
+      carsService.getCarById(id).then((res) =>{
+          if (res.status === 200) {
+            setDataCar(res.data)
+            setIsLoading(false)
+          }else {
+            setFailedLoad(res.statusText)
+            setIsLoading(false)
+          }
+      })
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id])
 
     const handlePayment = () =>{
         return navigate('/service/car/payment')
     }
+
+    let content;
+    if(dataCar){
+        content =  <ServiceDetailItem car={dataCar} handlePayment={handlePayment} />
+    }else{
+        content = <div className='text-center w-full'>{failedLoad}</div>
+    }
+
   return (
     <>
-        {status === 'pending' && <Loading />}
+        {isLoading && <Loading />}
         <NavbarUser  tag="Our Service" />
         <Header/>
         <div className='-translate-y-5 flex flex-col justify-center items-center'>
@@ -96,7 +109,7 @@ const ServiceDetail = () => {
             </form>
         </div>
         <div className='px-10 py-5'>
-            <ServiceDetailItem handlePayment={handlePayment} />
+           {content}
         </div>
     </>
   )
