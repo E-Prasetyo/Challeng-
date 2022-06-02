@@ -3,7 +3,7 @@ import iconOne from '../../../Assets/img/fi_users.png'
 import iconTwo from '../../../Assets/img/fi_settings.png'
 import iconThree from '../../../Assets/img/fi_settings.png'
 import Accordion from './Accordion';
-import ModalImage from "react-modal-image";
+// import ModalImage from "react-modal-image";
 
 const ServiceDetailItems = (props) => {
   const {car, handlePayment} = props;
@@ -41,13 +41,14 @@ const ServiceDetailItems = (props) => {
         {/* 2 */}
         <div className='w-full shadow-sm'>
           <div className='border-2 p-5 rounded-lg'>
-            <ModalImage
+            {/* <ModalImage
                 className='px-10 w-full h-72'
                 small={car.image}
                 large={car.image}
                 showRotate={true}
                 alt={car.name}
-            />
+            /> */}
+            <img src={car.image} alt={car.name} />
             <div className=''>
               <p className='text-lg font-bold py-5'>
                 {car.name} / {car.category}
