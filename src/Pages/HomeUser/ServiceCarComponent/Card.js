@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import iconOne from '../../../Assets/img/fi_users.png'
 import iconTwo from '../../../Assets/img/fi_settings.png'
@@ -7,9 +8,6 @@ const Card = ({item}) => {
     const priceRP = new Intl.NumberFormat('id-ID', 
     { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 })
     .format(item?.price);
-    // const dateFormat = new Intl.DateTimeFormat('en-GB', 
-    // { dateStyle: 'medium', timeStyle: 'short' })
-    // .format(new Date(item?.updatedAt))
     
     return(
         <div className='border border-black p-5 rounded-lg'>
@@ -41,7 +39,6 @@ const Card = ({item}) => {
                 <div className='flex flex-row gap-2'>
                     <img className='icon-size' src={iconThree} alt='' />
                     <span className='font-rent'>
-                        {/* {item?.updatedAt ?  : '-'}  */}
                         2020
                     </span>
                 </div>
