@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react'
+import Viewer from 'react-viewer';
 import iconOne from '../../../Assets/img/fi_users.png'
 import iconTwo from '../../../Assets/img/fi_settings.png'
 import iconThree from '../../../Assets/img/fi_settings.png'
@@ -6,6 +7,7 @@ import Accordion from './Accordion';
 // import ModalImage from "react-modal-image";
 
 const ServiceDetailItems = (props) => {
+  const [ visible, setVisible ] = useState(false);
   const {car, handlePayment} = props;
   const priceRP = new Intl.NumberFormat('id-ID', 
     { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 })
@@ -48,7 +50,16 @@ const ServiceDetailItems = (props) => {
                 showRotate={true}
                 alt={car.name}
             /> */}
+            <div>
+            <button onClick={() => { setVisible(true); } }>
             <img src={car.image} alt={car.name} />
+            </button>
+              <Viewer
+                visible={visible}
+                onClose={() => { setVisible(false); } }
+                images={[{src: car.image, alt: car.name}]}
+              />
+            </div>
             <div className=''>
               <p className='text-lg font-bold py-5'>
                 {car.name} / {car.category}
